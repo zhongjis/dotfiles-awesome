@@ -1,1 +1,0 @@
-/Users/zhongjieshen/.zprezto/runcoms/zshrc
