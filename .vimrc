@@ -3,8 +3,9 @@ syntax on
 set noerrorbells
 set tabstop=4 softtabstop=4
 set shiftwidth=4
-set expandtab
+set autoindent
 set smartindent
+set expandtab
 set nowrap
 set smartcase
 set noswapfile
@@ -19,6 +20,7 @@ set scrolloff=8
 set noshowmode
 set encoding=UTF-8
 set colorcolumn=80
+set completeopt=menuone,noinsert,noselect
 highlight ColorColumn ctermbg=0 guibg=lightgrey
 
 call plug#begin('~/.vim/plugged')
@@ -29,9 +31,15 @@ Plug 'junegunn/fzf.vim'
 Plug 'morhetz/gruvbox'
 Plug 'mbbill/undotree'
 Plug 'tpope/vim-fugitive'
-Plug 'vim-airline/vim-airline'
 Plug 'preservim/nerdtree' 
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'ryanoasis/vim-devicons'
 Plug 'jiangmiao/auto-pairs'
+Plug 'vim-airline/vim-airline'
+Plug 'airblade/vim-gitgutter'
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'yarn install',
+  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
 
 call plug#end()
 
@@ -45,7 +53,7 @@ let g:gruvbox_invert_selection='0'
 colorscheme gruvbox
 set background=dark
 
-" coc - basic
+""""""""""""""""COC Config""""""""""""""" 
 set hidden
 set nowritebackup
 set cmdheight=2
@@ -59,18 +67,55 @@ inoremap <silent><expr> <TAB>
       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
+" position. Coc only does snippet and additional edit on confirm.
+" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
+if exists('*complete_info')
+  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+else
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+endif
+
+" coc - go to navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" show documentation on k
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocActionAsync('doHover')
+  endif
+endfunction
+
 function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
+if exists('*complete_info')
+  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+else
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+endif
+
+""""""""""""""""end of COC Config""""""""""""""" 
+
 let mapleader = " "
 
 " remappinp
 nnoremap <Leader>pf :Files<CR>
-nnoremap <F1> :NERDTreeToggle<CR>
-nnoremap <F2> :UndotreeToggle<cr>
+nnoremap <F1> :NERDTreeFind<CR>
+nnoremap <F2> :UndotreeToggle<CR>
 
 " fzf
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 let $FZF_DEFAULT_OPTS='--reverse'
+
+" nerdtree
+let NERDTreeMinimalUI=1
